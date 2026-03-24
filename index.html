@@ -320,20 +320,18 @@ const scatterSpec = {
     },
 
     color: {
-      condition: [
-        {
-          test: "itemSelect == null || datum.Item == itemSelect",
-          field: "Item",
-          type: "nominal"
-        },
-        {
-          param: "brush",
-          field: "Item",
-          type: "nominal"
-        }
-      ],
-      value: "#d3d3d3"
-    },
+  field: "Item",
+  type: "nominal",
+  scale: { scheme: "tableau10" }
+},
+
+opacity: {
+  condition: {
+    test: "itemSelect == null || datum.Item == itemSelect",
+    value: 1
+  },
+  value: 0.2
+}
 
     tooltip: [
       { field: "Rep", type: "nominal" },
