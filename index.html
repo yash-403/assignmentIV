@@ -302,7 +302,7 @@ const scatterSpec = {
     // RAW VIEW
     {
       transform: [
-        { filter: "viewMode === 'raw'" }
+        { filter: { param: "viewMode", equal: "raw" } }
       ],
       mark: { type: "circle", opacity: 0.8 },
       encoding: {
@@ -323,7 +323,7 @@ const scatterSpec = {
     // AGGREGATED VIEW
     {
       transform: [
-        { filter: "viewMode === 'aggregated'" },
+        { filter: { param: "viewMode", equal: "aggregated" } },
         {
           aggregate: [
             { op: "mean", field: "Unit Cost", as: "avgCost" },
@@ -332,16 +332,11 @@ const scatterSpec = {
           groupby: ["Item"]
         }
       ],
-      mark: { type: "circle", size: 300, stroke: "black", strokeWidth: 1 },
+      mark: { type: "circle", size: 300, stroke: "black" },
       encoding: {
         x: { field: "avgCost", type: "quantitative" },
         y: { field: "avgTotal", type: "quantitative" },
-        color: { field: "Item", type: "nominal" },
-        tooltip: [
-          { field: "Item", type: "nominal" },
-          { field: "avgCost", type: "quantitative" },
-          { field: "avgTotal", type: "quantitative" }
-        ]
+        color: { field: "Item", type: "nominal" }
       }
     }
   ]
