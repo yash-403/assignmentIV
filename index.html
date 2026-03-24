@@ -276,12 +276,12 @@ const scatterSpec = {
 
   params: [
     {
-      name: "viewMode",
-      value: "raw",
+      name: "itemSelect",
+      value: null,
       bind: {
         input: "select",
-        options: ["raw", "aggregated"],
-        name: "View: "
+        options: [null, "Binder", "Desk", "Pen", "Pen Set", "Pencil"],
+        name: "Highlight Item: "
       }
     },
     {
@@ -297,49 +297,50 @@ const scatterSpec = {
     }
   ],
 
-  layer: [
+  mark: { type: "circle", opacity: 0.85 },
 
-    // RAW VIEW
-    {
-      transform: [
-        { filter: { param: "viewMode", equal: "raw" } }
-      ],
-      mark: { type: "circle", opacity: 0.8 },
-      encoding: {
-        x: { field: "Unit Cost", type: "quantitative" },
-        y: { field: "Total", type: "quantitative" },
-        size: {
-          field: "PricePerUnit",
-          type: "quantitative",
-          scale: { range: [50, 400] }
-        },
-        color: {
-          condition: { param: "brush", field: "Item", type: "nominal" },
-          value: "#ccc"
-        }
-      }
+  encoding: {
+    x: {
+      field: "Unit Cost",
+      type: "quantitative",
+      axis: { title: "Unit Cost ($)" }
     },
 
-    // AGGREGATED VIEW
-    {
-      transform: [
-        { filter: { param: "viewMode", equal: "aggregated" } },
+    y: {
+      field: "Total",
+      type: "quantitative",
+      axis: { title: "Total ($)" }
+    },
+
+    size: {
+      field: "PricePerUnit",
+      type: "quantitative",
+      scale: { range: [50, 400] },
+      legend: { title: "Price / Unit" }
+    },
+
+    color: {
+      condition: [
         {
-          aggregate: [
-            { op: "mean", field: "Unit Cost", as: "avgCost" },
-            { op: "mean", field: "Total", as: "avgTotal" }
-          ],
-          groupby: ["Item"]
+          test: "itemSelect == null || datum.Item == itemSelect",
+          field: "Item",
+          type: "nominal"
+        },
+        {
+          param: "brush",
+          field: "Item",
+          type: "nominal"
         }
       ],
-      mark: { type: "circle", size: 300, stroke: "black" },
-      encoding: {
-        x: { field: "avgCost", type: "quantitative" },
-        y: { field: "avgTotal", type: "quantitative" },
-        color: { field: "Item", type: "nominal" }
-      }
-    }
-  ]
+      value: "#d3d3d3"
+    },
+
+    tooltip: [
+      { field: "Rep", type: "nominal" },
+      { field: "Item", type: "nominal" },
+      { field: "PricePerUnit", type: "quantitative", format: ".2f" }
+    ]
+  }
 };
 // ─── 5. BAR CHART – Total by Rep ──────────────────────────────────────────────
 const barSpec = {
