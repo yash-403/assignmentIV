@@ -276,6 +276,10 @@ const scatterSpec = {
 
   params: [
     {
+      name: "brush",
+      select: { type: "interval", clear: "mouseup" }
+    },
+    {
       name: "itemSelect",
       value: null,
       bind: {
@@ -283,10 +287,6 @@ const scatterSpec = {
         options: [null, "Binder", "Desk", "Pen", "Pen Set", "Pencil"],
         name: "Highlight Item: "
       }
-    },
-    {
-      name: "brush",
-      select: { type: "interval" }
     }
   ],
 
@@ -319,23 +319,33 @@ const scatterSpec = {
       legend: { title: "Price / Unit" }
     },
 
+    // ✅ ALWAYS KEEP COLOR SIMPLE
     color: {
-  field: "Item",
-  type: "nominal",
-  scale: { scheme: "tableau10" }
-},
+      field: "Item",
+      type: "nominal",
+      scale: { scheme: "tableau10" }
+    },
 
-opacity: {
-  condition: {
-    test: "itemSelect == null || datum.Item == itemSelect",
-    value: 1
-  },
-  value: 0.2
-}
+    // ✅ INTERACTION VIA OPACITY (SAFE)
+    opacity: {
+      condition: [
+        {
+          param: "brush",
+          value: 1
+        },
+        {
+          test: "itemSelect == null || datum.Item == itemSelect",
+          value: 1
+        }
+      ],
+      value: 0.15
+    },
 
     tooltip: [
       { field: "Rep", type: "nominal" },
       { field: "Item", type: "nominal" },
+      { field: "Unit Cost", type: "quantitative", format: ".2f" },
+      { field: "Total", type: "quantitative", format: ",.2f" },
       { field: "PricePerUnit", type: "quantitative", format: ".2f" }
     ]
   }
