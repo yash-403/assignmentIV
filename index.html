@@ -2,326 +2,416 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HW_III Vega-Lite Visualizations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HW III – Sales Data Visualizations</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      max-width: 1500px;
-      margin: auto;
-      padding: 30px;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      margin: 0;
+      padding: 24px;
     }
     h1 {
       text-align: center;
-      color: #2c3e50;
-      margin-bottom: 30px;
-      font-size: 28px;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
     }
-    #vis {
-      background: white;
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    .subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 32px;
+      font-size: 0.95rem;
     }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px 20px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .card.full-width {
+      grid-column: 1 / -1;
+    }
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: #111;
+    }
+    .card p {
+      font-size: 0.8rem;
+      color: #888;
+      margin: 0 0 12px;
+    }
+    .viz { width: 100%; }
+    /* override vega-embed background */
+    .vega-embed { background: transparent !important; }
   </style>
 </head>
 <body>
-  <h1>HW_III - Vega-Lite Multiview Dashboard</h1>
-  <div id="vis"></div>
 
-  <script>
-    const spec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "data": {
-        "values": [
-          {"OrderDate":"2021-01-06","Region":"East","Rep":"Jones","Item":"Pencil","Units":95,"UnitCost":1.99,"Total":189.05},
-          {"OrderDate":"2021-01-23","Region":"Central","Rep":"Kivell","Item":"Binder","Units":50,"UnitCost":19.99,"Total":999.50},
-          {"OrderDate":"2021-02-09","Region":"Central","Rep":"Jardine","Item":"Pencil","Units":36,"UnitCost":4.99,"Total":179.64},
-          {"OrderDate":"2021-02-26","Region":"Central","Rep":"Gill","Item":"Pen","Units":27,"UnitCost":19.99,"Total":539.73},
-          {"OrderDate":"2021-03-15","Region":"West","Rep":"Sorvino","Item":"Pencil","Units":56,"UnitCost":2.99,"Total":167.44},
-          {"OrderDate":"2021-04-01","Region":"East","Rep":"Jones","Item":"Binder","Units":60,"UnitCost":4.99,"Total":299.40},
-          {"OrderDate":"2021-04-18","Region":"Central","Rep":"Andrews","Item":"Pencil","Units":75,"UnitCost":1.99,"Total":149.25},
-          {"OrderDate":"2021-05-05","Region":"Central","Rep":"Jardine","Item":"Pencil","Units":90,"UnitCost":4.99,"Total":449.10},
-          {"OrderDate":"2021-05-22","Region":"West","Rep":"Thompson","Item":"Pencil","Units":32,"UnitCost":1.99,"Total":63.68},
-          {"OrderDate":"2021-06-08","Region":"East","Rep":"Jones","Item":"Binder","Units":60,"UnitCost":8.99,"Total":539.40},
-          {"OrderDate":"2021-06-25","Region":"Central","Rep":"Morgan","Item":"Pencil","Units":90,"UnitCost":4.99,"Total":449.10},
-          {"OrderDate":"2021-07-12","Region":"East","Rep":"Howard","Item":"Binder","Units":29,"UnitCost":1.99,"Total":57.71},
-          {"OrderDate":"2021-07-29","Region":"East","Rep":"Parent","Item":"Binder","Units":81,"UnitCost":19.99,"Total":1619.19},
-          {"OrderDate":"2021-08-15","Region":"East","Rep":"Jones","Item":"Pencil","Units":35,"UnitCost":4.99,"Total":174.65},
-          {"OrderDate":"2021-09-01","Region":"Central","Rep":"Smith","Item":"Desk","Units":2,"UnitCost":125.00,"Total":250.00},
-          {"OrderDate":"2021-09-18","Region":"East","Rep":"Jones","Item":"Pen Set","Units":16,"UnitCost":15.99,"Total":255.84},
-          {"OrderDate":"2021-10-05","Region":"Central","Rep":"Morgan","Item":"Binder","Units":28,"UnitCost":8.99,"Total":251.72},
-          {"OrderDate":"2021-10-22","Region":"East","Rep":"Jones","Item":"Pen","Units":64,"UnitCost":8.99,"Total":575.36},
-          {"OrderDate":"2021-11-08","Region":"East","Rep":"Parent","Item":"Pen","Units":15,"UnitCost":19.99,"Total":299.85},
-          {"OrderDate":"2021-11-25","Region":"Central","Rep":"Kivell","Item":"Pen Set","Units":96,"UnitCost":4.99,"Total":479.04},
-          {"OrderDate":"2021-12-12","Region":"Central","Rep":"Smith","Item":"Pencil","Units":67,"UnitCost":1.29,"Total":86.43},
-          {"OrderDate":"2021-12-29","Region":"East","Rep":"Parent","Item":"Pen Set","Units":74,"UnitCost":15.99,"Total":1183.26},
-          {"OrderDate":"2022-01-15","Region":"Central","Rep":"Gill","Item":"Binder","Units":46,"UnitCost":8.99,"Total":413.54},
-          {"OrderDate":"2022-02-01","Region":"Central","Rep":"Smith","Item":"Binder","Units":87,"UnitCost":15.00,"Total":1305.00},
-          {"OrderDate":"2022-02-18","Region":"East","Rep":"Jones","Item":"Binder","Units":4,"UnitCost":4.99,"Total":19.96},
-          {"OrderDate":"2022-03-07","Region":"West","Rep":"Sorvino","Item":"Binder","Units":7,"UnitCost":19.99,"Total":139.93},
-          {"OrderDate":"2022-03-24","Region":"Central","Rep":"Jardine","Item":"Pen Set","Units":50,"UnitCost":4.99,"Total":249.50},
-          {"OrderDate":"2022-04-10","Region":"Central","Rep":"Andrews","Item":"Pencil","Units":66,"UnitCost":1.99,"Total":131.34},
-          {"OrderDate":"2022-04-27","Region":"East","Rep":"Howard","Item":"Pen","Units":96,"UnitCost":4.99,"Total":479.04},
-          {"OrderDate":"2022-05-14","Region":"Central","Rep":"Gill","Item":"Pencil","Units":53,"UnitCost":1.29,"Total":68.37},
-          {"OrderDate":"2022-05-31","Region":"Central","Rep":"Gill","Item":"Binder","Units":80,"UnitCost":8.99,"Total":719.20},
-          {"OrderDate":"2022-06-17","Region":"Central","Rep":"Kivell","Item":"Desk","Units":5,"UnitCost":125.00,"Total":625.00},
-          {"OrderDate":"2022-07-04","Region":"East","Rep":"Jones","Item":"Pen Set","Units":62,"UnitCost":4.99,"Total":309.38},
-          {"OrderDate":"2022-07-21","Region":"Central","Rep":"Morgan","Item":"Pen Set","Units":55,"UnitCost":12.49,"Total":686.95},
-          {"OrderDate":"2022-08-07","Region":"Central","Rep":"Kivell","Item":"Pen Set","Units":42,"UnitCost":23.95,"Total":1005.90},
-          {"OrderDate":"2022-08-24","Region":"West","Rep":"Sorvino","Item":"Desk","Units":3,"UnitCost":275.00,"Total":825.00},
-          {"OrderDate":"2022-09-10","Region":"Central","Rep":"Gill","Item":"Pencil","Units":7,"UnitCost":1.29,"Total":9.03},
-          {"OrderDate":"2022-09-27","Region":"West","Rep":"Sorvino","Item":"Pen","Units":76,"UnitCost":1.99,"Total":151.24},
-          {"OrderDate":"2022-10-14","Region":"West","Rep":"Thompson","Item":"Binder","Units":57,"UnitCost":19.99,"Total":1139.43},
-          {"OrderDate":"2022-10-31","Region":"Central","Rep":"Andrews","Item":"Pencil","Units":14,"UnitCost":1.29,"Total":18.06},
-          {"OrderDate":"2022-11-17","Region":"Central","Rep":"Jardine","Item":"Binder","Units":11,"UnitCost":4.99,"Total":54.89},
-          {"OrderDate":"2022-12-04","Region":"Central","Rep":"Jardine","Item":"Binder","Units":94,"UnitCost":19.99,"Total":1879.06},
-          {"OrderDate":"2022-12-21","Region":"Central","Rep":"Andrews","Item":"Binder","Units":28,"UnitCost":4.99,"Total":139.72}
-        ]
-      },
-      "vconcat": [
-        {
-          "hconcat": [
-            {
-              "title": "1. Donut Chart: Rep vs Total Sales",
-              "width": 300,
-              "height": 300,
-              "transform": [
-                {
-                  "aggregate": [{"op": "sum", "field": "Total", "as": "SumTotal"}],
-                  "groupby": ["Rep"]
-                }
-              ],
-              "mark": {"type": "arc", "innerRadius": 70, "stroke": "#fff", "strokeWidth": 2},
-              "encoding": {
-                "theta": {"field": "SumTotal", "type": "quantitative", "stack": true},
-                "color": {
-                  "field": "Rep",
-                  "type": "nominal",
-                  "scale": {"scheme": "tableau20"},
-                  "legend": {"title": "Sales Rep"}
-                },
-                "tooltip": [
-                  {"field": "Rep", "type": "nominal", "title": "Sales Rep"},
-                  {"field": "SumTotal", "type": "quantitative", "format": "$,.2f", "title": "Total Revenue"}
-                ]
-              }
-            },
-            {
-              "title": "2. Streamgraph: Total Over Time by Item",
-              "width": 550,
-              "height": 300,
-              "mark": {"type": "area", "interpolate": "basis"},
-              "encoding": {
-                "x": {
-                  "field": "OrderDate",
-                  "timeUnit": "yearmonth",
-                  "type": "temporal",
-                  "title": "Order Date",
-                  "axis": {"format": "%b %Y", "labelAngle": -45}
-                },
-                "y": {
-                  "field": "Total",
-                  "type": "quantitative",
-                  "aggregate": "sum",
-                  "stack": "center",
-                  "title": null,
-                  "axis": {"title": "Total"}
-                },
-                "color": {
-                  "field": "Item",
-                  "type": "nominal",
-                  "scale": {"scheme": "category10"},
-                  "legend": {"title": "Item"}
-                },
-                "tooltip": [
-                  {"field": "Item", "type": "nominal"},
-                  {"field": "OrderDate", "timeUnit": "yearmonth", "type": "temporal", "title": "Month"},
-                  {"field": "Total", "type": "quantitative", "aggregate": "sum", "format": "$,.2f"}
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "title": "3. Trellis Histogram of Units by Item (Red Line = Mean)",
-          "columns": 5,
-          "facet": {"field": "Item", "type": "nominal", "title": "Item"},
-          "spec": {
-            "width": 160,
-            "height": 140,
-            "layer": [
-              {
-                "mark": {"type": "bar", "color": "steelblue", "opacity": 0.7},
-                "encoding": {
-                  "x": {"field": "Units", "type": "quantitative", "bin": {"maxbins": 8}, "title": "Units"},
-                  "y": {"aggregate": "count", "type": "quantitative", "title": "Count"}
-                }
-              },
-              {
-                "mark": {"type": "rule", "color": "red", "size": 3, "strokeDash": [6,3]},
-                "encoding": {
-                  "x": {"field": "Units", "type": "quantitative", "aggregate": "mean"},
-                  "tooltip": [
-                    {"field": "Units", "aggregate": "mean", "type": "quantitative", "title": "Mean Units", "format": ".1f"}
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "hconcat": [
-            {
-              "title": "4. Click a Region Bar to Drill Down into Rep Breakdown",
-              "vconcat": [
-                {
-                  "width": 400,
-                  "height": 200,
-                  "transform": [
-                    {
-                      "aggregate": [{"op": "sum", "field": "Total", "as": "RegionTotal"}],
-                      "groupby": ["Region"]
-                    }
-                  ],
-                  "params": [
-                    {
-                      "name": "regionClick",
-                      "select": {"type": "point", "fields": ["Region"]}
-                    }
-                  ],
-                  "mark": {"type": "bar", "cursor": "pointer", "cornerRadiusTopLeft": 5, "cornerRadiusTopRight": 5},
-                  "encoding": {
-                    "x": {"field": "Region", "type": "nominal", "title": "Region"},
-                    "y": {"field": "RegionTotal", "type": "quantitative", "title": "Total Revenue ($)"},
-                    "color": {
-                      "condition": {
-                        "param": "regionClick",
-                        "field": "Region",
-                        "type": "nominal",
-                        "scale": {"domain": ["East","Central","West"], "range": ["#e74c3c","#3498db","#2ecc71"]}
-                      },
-                      "value": "#bdc3c7"
-                    },
-                    "tooltip": [
-                      {"field": "Region", "type": "nominal"},
-                      {"field": "RegionTotal", "type": "quantitative", "format": "$,.2f", "title": "Total Revenue"}
-                    ]
-                  }
-                },
-                {
-                  "width": 400,
-                  "height": 220,
-                  "transform": [
-                    {"filter": {"param": "regionClick"}},
-                    {
-                      "aggregate": [{"op": "sum", "field": "Total", "as": "RepTotal"}],
-                      "groupby": ["Rep","Item"]
-                    }
-                  ],
-                  "mark": {"type": "bar", "cornerRadiusEnd": 4},
-                  "encoding": {
-                    "y": {"field": "Rep", "type": "nominal", "title": "Sales Rep", "sort": "-x"},
-                    "x": {"field": "RepTotal", "type": "quantitative", "title": "Revenue ($)", "stack": "zero"},
-                    "color": {"field": "Item", "type": "nominal", "scale": {"scheme": "set2"}, "legend": {"title": "Item"}},
-                    "tooltip": [
-                      {"field": "Rep", "type": "nominal"},
-                      {"field": "Item", "type": "nominal"},
-                      {"field": "RepTotal", "type": "quantitative", "format": "$,.2f", "title": "Revenue"}
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "title": "5. Drag to Select Time Range → See Item Revenue Below",
-              "vconcat": [
-                {
-                  "width": 450,
-                  "height": 220,
-                  "params": [
-                    {
-                      "name": "timeBrush",
-                      "select": {"type": "interval", "encodings": ["x"]}
-                    }
-                  ],
-                  "mark": {"type": "circle", "size": 120, "opacity": 0.8},
-                  "encoding": {
-                    "x": {
-                      "field": "OrderDate",
-                      "type": "temporal",
-                      "title": "Order Date",
-                      "axis": {"format": "%b %Y", "labelAngle": -45}
-                    },
-                    "y": {"field": "Total", "type": "quantitative", "title": "Total ($)"},
-                    "color": {
-                      "condition": {
-                        "param": "timeBrush",
-                        "field": "Item",
-                        "type": "nominal",
-                        "scale": {"scheme": "dark2"}
-                      },
-                      "value": "lightgray"
-                    },
-                    "size": {
-                      "condition": {"param": "timeBrush", "value": 180},
-                      "value": 30
-                    },
-                    "tooltip": [
-                      {"field": "Rep", "type": "nominal"},
-                      {"field": "Item", "type": "nominal"},
-                      {"field": "Region", "type": "nominal"},
-                      {"field": "Units", "type": "quantitative"},
-                      {"field": "Total", "type": "quantitative", "format": "$,.2f"},
-                      {"field": "OrderDate", "type": "temporal", "format": "%b %d, %Y"}
-                    ]
-                  }
-                },
-                {
-                  "width": 450,
-                  "height": 180,
-                  "transform": [
-                    {"filter": {"param": "timeBrush"}},
-                    {
-                      "aggregate": [
-                        {"op": "sum", "field": "Total", "as": "FilteredTotal"},
-                        {"op": "sum", "field": "Units", "as": "FilteredUnits"}
-                      ],
-                      "groupby": ["Item"]
-                    }
-                  ],
-                  "mark": {"type": "bar", "cornerRadiusTopLeft": 5, "cornerRadiusTopRight": 5},
-                  "encoding": {
-                    "x": {"field": "Item", "type": "nominal", "title": "Item", "sort": "-y"},
-                    "y": {"field": "FilteredTotal", "type": "quantitative", "title": "Revenue in Selection ($)"},
-                    "color": {"field": "Item", "type": "nominal", "scale": {"scheme": "dark2"}, "legend": null},
-                    "tooltip": [
-                      {"field": "Item", "type": "nominal"},
-                      {"field": "FilteredTotal", "type": "quantitative", "format": "$,.2f", "title": "Total Revenue"},
-                      {"field": "FilteredUnits", "type": "quantitative", "title": "Total Units"}
-                    ]
-                  }
-                }
-              ]
-            }
+<h1>📊 HW III — Sales Data Visualizations</h1>
+<p class="subtitle">Vega-Lite Assignment · Dataset: Office Supply Orders (2021–2022)</p>
+
+<div class="grid">
+
+  <!-- Chart 1: Donut Chart -->
+  <div class="card">
+    <h2>1. Donut Chart — Rep vs Total Revenue</h2>
+    <p>Hover over a slice to see details. Click a rep to filter.</p>
+    <div id="donut" class="viz"></div>
+  </div>
+
+  <!-- Chart 2: Streamgraph -->
+  <div class="card">
+    <h2>2. Streamgraph — Total Over Time by Item</h2>
+    <p>Hover to see exact values. Click legend items to highlight.</p>
+    <div id="stream" class="viz"></div>
+  </div>
+
+  <!-- Chart 3: Trellis Histogram -->
+  <div class="card full-width">
+    <h2>3. Trellis Histogram — Units per Item (with Mean Overlay)</h2>
+    <p>Each facet is one item. The red dashed rule marks the mean units for that item.</p>
+    <div id="trellis" class="viz"></div>
+  </div>
+
+  <!-- Chart 4: Interactive Scatter -->
+  <div class="card">
+    <h2>4. Scatter — Unit Cost vs Total (by Item)</h2>
+    <p>Click & drag to brush a region — selected points are highlighted. Clear by clicking empty space.</p>
+    <div id="scatter" class="viz"></div>
+  </div>
+
+  <!-- Chart 5: Bar chart with region filter -->
+  <div class="card">
+    <h2>5. Bar Chart — Total Revenue by Rep</h2>
+    <p>Click a bar to highlight it. Shift-click for multi-select.</p>
+    <div id="bar" class="viz"></div>
+  </div>
+
+</div>
+
+<script>
+// Data sourced directly from HW_III.xlsx → SalesOrders sheet. Totals rounded to 2dp.
+const DATA = [
+  {"OrderDate":"2021-01-06","Region":"East","Rep":"Jones","Item":"Pencil","Units":95,"Unit Cost":1.99,"Total":189.05},
+  {"OrderDate":"2021-01-23","Region":"Central","Rep":"Kivell","Item":"Binder","Units":50,"Unit Cost":19.99,"Total":999.50},
+  {"OrderDate":"2021-02-09","Region":"Central","Rep":"Jardine","Item":"Pencil","Units":36,"Unit Cost":4.99,"Total":179.64},
+  {"OrderDate":"2021-02-26","Region":"Central","Rep":"Gill","Item":"Pen","Units":27,"Unit Cost":19.99,"Total":539.73},
+  {"OrderDate":"2021-03-15","Region":"West","Rep":"Sorvino","Item":"Pencil","Units":56,"Unit Cost":2.99,"Total":167.44},
+  {"OrderDate":"2021-04-01","Region":"East","Rep":"Jones","Item":"Binder","Units":60,"Unit Cost":4.99,"Total":299.40},
+  {"OrderDate":"2021-04-18","Region":"Central","Rep":"Andrews","Item":"Pencil","Units":75,"Unit Cost":1.99,"Total":149.25},
+  {"OrderDate":"2021-05-05","Region":"Central","Rep":"Jardine","Item":"Pencil","Units":90,"Unit Cost":4.99,"Total":449.10},
+  {"OrderDate":"2021-05-22","Region":"West","Rep":"Thompson","Item":"Pencil","Units":32,"Unit Cost":1.99,"Total":63.68},
+  {"OrderDate":"2021-06-08","Region":"East","Rep":"Jones","Item":"Binder","Units":60,"Unit Cost":8.99,"Total":539.40},
+  {"OrderDate":"2021-06-25","Region":"Central","Rep":"Morgan","Item":"Pencil","Units":90,"Unit Cost":4.99,"Total":449.10},
+  {"OrderDate":"2021-07-12","Region":"East","Rep":"Howard","Item":"Binder","Units":29,"Unit Cost":1.99,"Total":57.71},
+  {"OrderDate":"2021-07-29","Region":"East","Rep":"Parent","Item":"Binder","Units":81,"Unit Cost":19.99,"Total":1619.19},
+  {"OrderDate":"2021-08-15","Region":"East","Rep":"Jones","Item":"Pencil","Units":35,"Unit Cost":4.99,"Total":174.65},
+  {"OrderDate":"2021-09-01","Region":"Central","Rep":"Smith","Item":"Desk","Units":2,"Unit Cost":125.00,"Total":250.00},
+  {"OrderDate":"2021-09-18","Region":"East","Rep":"Jones","Item":"Pen Set","Units":16,"Unit Cost":15.99,"Total":255.84},
+  {"OrderDate":"2021-10-05","Region":"Central","Rep":"Morgan","Item":"Binder","Units":28,"Unit Cost":8.99,"Total":251.72},
+  {"OrderDate":"2021-10-22","Region":"East","Rep":"Jones","Item":"Pen","Units":64,"Unit Cost":8.99,"Total":575.36},
+  {"OrderDate":"2021-11-08","Region":"East","Rep":"Parent","Item":"Pen","Units":15,"Unit Cost":19.99,"Total":299.85},
+  {"OrderDate":"2021-11-25","Region":"Central","Rep":"Kivell","Item":"Pen Set","Units":96,"Unit Cost":4.99,"Total":479.04},
+  {"OrderDate":"2021-12-12","Region":"Central","Rep":"Smith","Item":"Pencil","Units":67,"Unit Cost":1.29,"Total":86.43},
+  {"OrderDate":"2021-12-29","Region":"East","Rep":"Parent","Item":"Pen Set","Units":74,"Unit Cost":15.99,"Total":1183.26},
+  {"OrderDate":"2022-01-15","Region":"Central","Rep":"Gill","Item":"Binder","Units":46,"Unit Cost":8.99,"Total":413.54},
+  {"OrderDate":"2022-02-01","Region":"Central","Rep":"Smith","Item":"Binder","Units":87,"Unit Cost":15.00,"Total":1305.00},
+  {"OrderDate":"2022-02-18","Region":"East","Rep":"Jones","Item":"Binder","Units":4,"Unit Cost":4.99,"Total":19.96},
+  {"OrderDate":"2022-03-07","Region":"West","Rep":"Sorvino","Item":"Binder","Units":7,"Unit Cost":19.99,"Total":139.93},
+  {"OrderDate":"2022-03-24","Region":"Central","Rep":"Jardine","Item":"Pen Set","Units":50,"Unit Cost":4.99,"Total":249.50},
+  {"OrderDate":"2022-04-10","Region":"Central","Rep":"Andrews","Item":"Pencil","Units":66,"Unit Cost":1.99,"Total":131.34},
+  {"OrderDate":"2022-04-27","Region":"East","Rep":"Howard","Item":"Pen","Units":96,"Unit Cost":4.99,"Total":479.04},
+  {"OrderDate":"2022-05-14","Region":"Central","Rep":"Gill","Item":"Pencil","Units":53,"Unit Cost":1.29,"Total":68.37},
+  {"OrderDate":"2022-05-31","Region":"Central","Rep":"Gill","Item":"Binder","Units":80,"Unit Cost":8.99,"Total":719.20},
+  {"OrderDate":"2022-06-17","Region":"Central","Rep":"Kivell","Item":"Desk","Units":5,"Unit Cost":125.00,"Total":625.00},
+  {"OrderDate":"2022-07-04","Region":"East","Rep":"Jones","Item":"Pen Set","Units":62,"Unit Cost":4.99,"Total":309.38},
+  {"OrderDate":"2022-07-21","Region":"Central","Rep":"Morgan","Item":"Pen Set","Units":55,"Unit Cost":12.49,"Total":686.95},
+  {"OrderDate":"2022-08-07","Region":"Central","Rep":"Kivell","Item":"Pen Set","Units":42,"Unit Cost":23.95,"Total":1005.90},
+  {"OrderDate":"2022-08-24","Region":"West","Rep":"Sorvino","Item":"Desk","Units":3,"Unit Cost":275.00,"Total":825.00},
+  {"OrderDate":"2022-09-10","Region":"Central","Rep":"Gill","Item":"Pencil","Units":7,"Unit Cost":1.29,"Total":9.03},
+  {"OrderDate":"2022-09-27","Region":"West","Rep":"Sorvino","Item":"Pen","Units":76,"Unit Cost":1.99,"Total":151.24},
+  {"OrderDate":"2022-10-14","Region":"West","Rep":"Thompson","Item":"Binder","Units":57,"Unit Cost":19.99,"Total":1139.43},
+  {"OrderDate":"2022-10-31","Region":"Central","Rep":"Andrews","Item":"Pencil","Units":14,"Unit Cost":1.29,"Total":18.06},
+  {"OrderDate":"2022-11-17","Region":"Central","Rep":"Jardine","Item":"Binder","Units":11,"Unit Cost":4.99,"Total":54.89},
+  {"OrderDate":"2022-12-04","Region":"Central","Rep":"Jardine","Item":"Binder","Units":94,"Unit Cost":19.99,"Total":1879.06},
+  {"OrderDate":"2022-12-21","Region":"Central","Rep":"Andrews","Item":"Binder","Units":28,"Unit Cost":4.99,"Total":139.72}
+];
+
+// ─── 1. DONUT CHART ───────────────────────────────────────────────────────────
+const donutSpec = {
+  $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  width: "container",
+  height: 300,
+  data: { values: DATA },
+  transform: [
+    { aggregate: [{ op: "sum", field: "Total", as: "TotalRevenue" }], groupby: ["Rep"] }
+  ],
+  params: [{
+    name: "highlight",
+    select: { type: "point", fields: ["Rep"] }
+  }],
+  mark: { type: "arc", innerRadius: 70, outerRadius: 130 },
+  encoding: {
+    theta: { field: "TotalRevenue", type: "quantitative" },
+    color: { field: "Rep", type: "nominal", legend: { title: "Sales Rep" } },
+    opacity: {
+      condition: { param: "highlight", value: 1 },
+      value: 0.3
+    },
+    tooltip: [
+      { field: "Rep", type: "nominal", title: "Rep" },
+      { field: "TotalRevenue", type: "quantitative", title: "Total Revenue ($)", format: ",.2f" }
+    ]
+  }
+};
+
+// ─── 2. STREAMGRAPH ───────────────────────────────────────────────────────────
+const streamSpec = {
+  $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  width: "container",
+  height: 300,
+  data: { values: DATA },
+  transform: [
+    { aggregate: [{ op: "sum", field: "Total", as: "TotalRevenue" }], groupby: ["OrderDate", "Item"] }
+  ],
+  params: [{
+    name: "itemSel",
+    select: { type: "point", fields: ["Item"] },
+    bind: "legend"
+  }],
+  mark: { type: "area", interpolate: "monotone" },
+  encoding: {
+    x: {
+      field: "OrderDate", type: "temporal",
+      axis: { title: "Date", format: "%b %Y" }
+    },
+    y: {
+      field: "TotalRevenue", type: "quantitative",
+      stack: "center",
+      axis: { title: "Total Revenue ($)" }
+    },
+    color: {
+      field: "Item", type: "nominal",
+      scale: { scheme: "tableau10" }
+    },
+    opacity: {
+      condition: { param: "itemSel", value: 0.85 },
+      value: 0.15
+    },
+    tooltip: [
+      { field: "Item", type: "nominal", title: "Item" },
+      { field: "OrderDate", type: "temporal", title: "Date", format: "%d %b %Y" },
+      { field: "TotalRevenue", type: "quantitative", title: "Total ($)", format: ",.2f" }
+    ]
+  }
+};
+
+// ─── 3. TRELLIS HISTOGRAM ─────────────────────────────────────────────────────
+const trellisSpec = {
+  $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  width: 180,
+  height: 140,
+  data: { values: DATA },
+  facet: {
+    field: "Item", type: "nominal",
+    columns: 5,
+    header: { title: "Item", titleFontSize: 13 }
+  },
+  spec: {
+    layer: [
+      {
+        mark: { type: "bar", color: "#4C78A8" },
+        encoding: {
+          x: {
+            field: "Units", type: "quantitative",
+            bin: { maxbins: 8 },
+            axis: { title: "Units" }
+          },
+          y: {
+            aggregate: "count", type: "quantitative",
+            axis: { title: "Count" }
+          },
+          tooltip: [
+            { field: "Units", bin: true, type: "quantitative", title: "Units (bin)" },
+            { aggregate: "count", type: "quantitative", title: "Count" }
           ]
         }
-      ],
-      "resolve": {"scale": {"color": "independent"}},
-      "config": {
-        "title": {"fontSize": 15, "font": "Segoe UI"},
-        "axis": {"labelFontSize": 11, "titleFontSize": 13},
-        "legend": {"labelFontSize": 11, "titleFontSize": 12},
-        "view": {"stroke": null}
+      },
+      {
+        mark: { type: "rule", color: "#E45756", strokeWidth: 2, strokeDash: [4, 3] },
+        encoding: {
+          x: {
+            aggregate: "mean", field: "Units",
+            type: "quantitative"
+          },
+          tooltip: [
+            { aggregate: "mean", field: "Units", type: "quantitative", title: "Mean Units", format: ".1f" }
+          ]
+        }
       }
-    };
+    ]
+  }
+};
 
-    vegaEmbed('#vis', spec, {actions: true, renderer: 'canvas'}).catch(console.error);
-  </script>
+// ─── 4. INTERACTIVE SCATTER ───────────────────────────────────────────────────
+const scatterSpec = {
+  $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  width: "container",
+  height: 300,
+  data: { values: DATA },
+
+  transform: [
+    {
+      calculate: "datum.Total / datum.Units",
+      as: "PricePerUnit"
+    }
+  ],
+
+  params: [{
+    name: "brush",
+    select: { type: "interval" }
+  }],
+
+  mark: { type: "circle", opacity: 0.85 },
+
+  encoding: {
+    x: {
+      field: "Unit Cost",
+      type: "quantitative",
+      axis: { title: "Unit Cost ($)" }
+    },
+
+    y: {
+      field: "Total",
+      type: "quantitative",
+      axis: { title: "Total ($)" }
+    },
+
+    size: {
+      field: "PricePerUnit",
+      type: "quantitative",
+      scale: { range: [50, 500] },
+      legend: { title: "Price / Unit" }
+    },
+
+    color: {
+      condition: {
+        param: "brush",
+        field: "Item",
+        type: "nominal",
+        scale: { scheme: "tableau10" }
+      },
+      value: "#d3d3d3"
+    },
+
+    tooltip: [
+      { field: "Rep", type: "nominal" },
+      { field: "Item", type: "nominal" },
+      { field: "PricePerUnit", type: "quantitative", format: ".2f" }
+    ]
+  }
+};
+
+// ─── 5. BAR CHART – Total by Rep ──────────────────────────────────────────────
+const barSpec = {
+  $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  width: "container",
+  height: 300,
+  data: { values: DATA },
+
+  transform: [
+    {
+      aggregate: [{ op: "sum", field: "Total", as: "TotalRevenue" }],
+      groupby: ["Rep", "Region"]
+    },
+    {
+      window: [{ op: "rank", as: "rank" }],
+      sort: [{ field: "TotalRevenue", order: "descending" }]
+    },
+    {
+      filter: "datum.rank <= topK"
+    }
+  ],
+
+  params: [
+    {
+      name: "repSelect",
+      select: { type: "point", fields: ["Rep"], toggle: true }
+    },
+    {
+      name: "topK",
+      value: 5,
+      bind: {
+        input: "range",
+        min: 3,
+        max: 10,
+        step: 1,
+        name: "Top Reps: "
+      }
+    }
+  ],
+
+  mark: { type: "bar", cornerRadiusTopLeft: 5, cornerRadiusTopRight: 5 },
+
+  encoding: {
+    x: {
+      field: "Rep",
+      type: "nominal",
+      sort: "-y",
+      axis: { labelAngle: -35 }
+    },
+
+    y: {
+      field: "TotalRevenue",
+      type: "quantitative",
+      axis: { title: "Total Revenue ($)" }
+    },
+
+    color: {
+      condition: {
+        param: "repSelect",
+        field: "Region",
+        type: "nominal",
+        scale: { scheme: "set2" }
+      },
+      value: "#cfcfcf"
+    },
+
+    opacity: {
+      condition: { param: "repSelect", value: 1 },
+      value: 0.4
+    },
+
+    tooltip: [
+      { field: "Rep", type: "nominal" },
+      { field: "TotalRevenue", type: "quantitative", format: ",.2f" },
+      { field: "rank", type: "quantitative" }
+    ]
+  }
+};
+
+// ─── Embed all ────────────────────────────────────────────────────────────────
+const opts = { renderer: "svg", actions: true, theme: "default" };
+
+vegaEmbed("#donut",   donutSpec,   opts).catch(console.error);
+vegaEmbed("#stream",  streamSpec,  opts).catch(console.error);
+vegaEmbed("#trellis", trellisSpec, opts).catch(console.error);
+vegaEmbed("#scatter", scatterSpec, opts).catch(console.error);
+vegaEmbed("#bar",     barSpec,     opts).catch(console.error);
+</script>
 </body>
 </html>
