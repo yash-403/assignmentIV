@@ -297,7 +297,7 @@ const scatterSpec = {
     }
   ],
 
-  mark: { type: "circle", opacity: 0.85 },
+  mark: { type: "circle" },
 
   encoding: {
     x: {
@@ -319,25 +319,19 @@ const scatterSpec = {
       legend: { title: "Price / Unit" }
     },
 
-    // ✅ ALWAYS KEEP COLOR SIMPLE
+    // ✅ COLOR ALWAYS VISIBLE
     color: {
       field: "Item",
       type: "nominal",
       scale: { scheme: "tableau10" }
     },
 
-    // ✅ INTERACTION VIA OPACITY (SAFE)
+    // ✅ DROPDOWN INTERACTION (WORKING)
     opacity: {
-      condition: [
-        {
-          param: "brush",
-          value: 1
-        },
-        {
-          test: "itemSelect == null || datum.Item == itemSelect",
-          value: 1
-        }
-      ],
+      condition: {
+        test: "itemSelect == null || datum.Item == itemSelect",
+        value: 1
+      },
       value: 0.15
     },
 
