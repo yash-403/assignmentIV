@@ -274,6 +274,22 @@ const scatterSpec = {
   height: 300,
   data: { values: DATA },
 
+  params: [
+    {
+      name: "viewMode",
+      value: "raw",
+      bind: {
+        input: "select",
+        options: ["raw", "aggregated"],
+        name: "View: "
+      }
+    },
+    {
+      name: "brush",
+      select: { type: "interval" }
+    }
+  ],
+
   transform: [
     {
       calculate: "datum.Total / datum.Units",
@@ -281,51 +297,55 @@ const scatterSpec = {
     }
   ],
 
-  params: [{
-    name: "brush",
-    select: { type: "interval" }
-  }],
+  layer: [
 
-  mark: { type: "circle", opacity: 0.85 },
-
-  encoding: {
-    x: {
-      field: "Unit Cost",
-      type: "quantitative",
-      axis: { title: "Unit Cost ($)" }
+    // RAW VIEW
+    {
+      transform: [
+        { filter: "viewMode === 'raw'" }
+      ],
+      mark: { type: "circle", opacity: 0.8 },
+      encoding: {
+        x: { field: "Unit Cost", type: "quantitative" },
+        y: { field: "Total", type: "quantitative" },
+        size: {
+          field: "PricePerUnit",
+          type: "quantitative",
+          scale: { range: [50, 400] }
+        },
+        color: {
+          condition: { param: "brush", field: "Item", type: "nominal" },
+          value: "#ccc"
+        }
+      }
     },
 
-    y: {
-      field: "Total",
-      type: "quantitative",
-      axis: { title: "Total ($)" }
-    },
-
-    size: {
-      field: "PricePerUnit",
-      type: "quantitative",
-      scale: { range: [50, 500] },
-      legend: { title: "Price / Unit" }
-    },
-
-    color: {
-      condition: {
-        param: "brush",
-        field: "Item",
-        type: "nominal",
-        scale: { scheme: "tableau10" }
-      },
-      value: "#d3d3d3"
-    },
-
-    tooltip: [
-      { field: "Rep", type: "nominal" },
-      { field: "Item", type: "nominal" },
-      { field: "PricePerUnit", type: "quantitative", format: ".2f" }
-    ]
-  }
+    // AGGREGATED VIEW
+    {
+      transform: [
+        { filter: "viewMode === 'aggregated'" },
+        {
+          aggregate: [
+            { op: "mean", field: "Unit Cost", as: "avgCost" },
+            { op: "mean", field: "Total", as: "avgTotal" }
+          ],
+          groupby: ["Item"]
+        }
+      ],
+      mark: { type: "circle", size: 300, stroke: "black", strokeWidth: 1 },
+      encoding: {
+        x: { field: "avgCost", type: "quantitative" },
+        y: { field: "avgTotal", type: "quantitative" },
+        color: { field: "Item", type: "nominal" },
+        tooltip: [
+          { field: "Item", type: "nominal" },
+          { field: "avgCost", type: "quantitative" },
+          { field: "avgTotal", type: "quantitative" }
+        ]
+      }
+    }
+  ]
 };
-
 // ─── 5. BAR CHART – Total by Rep ──────────────────────────────────────────────
 const barSpec = {
   $schema: "https://vega.github.io/schema/vega-lite/v5.json",
