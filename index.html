@@ -31,7 +31,7 @@
   </style>
 </head>
 <body>
-  <h1>📊 HW_III — Vega-Lite Multiview Dashboard</h1>
+  <h1>HW_III - Vega-Lite Multiview Dashboard</h1>
   <div id="vis"></div>
 
   <script>
@@ -86,35 +86,41 @@
       },
       "vconcat": [
         {
-          "title": {"text": "━━━ Row 1: Donut Chart & Streamgraph ━━━", "anchor": "middle", "fontSize": 14, "color": "#7f8c8d"},
           "hconcat": [
             {
-              "title": {"text": "1️⃣ Donut Chart: Rep vs Total Sales", "fontSize": 15},
-              "width": 320,
-              "height": 320,
-              "mark": {"type": "arc", "innerRadius": 80, "stroke": "#fff", "strokeWidth": 2},
+              "title": "1. Donut Chart: Rep vs Total Sales",
+              "width": 300,
+              "height": 300,
+              "transform": [
+                {
+                  "aggregate": [{"op": "sum", "field": "Total", "as": "SumTotal"}],
+                  "groupby": ["Rep"]
+                }
+              ],
+              "mark": {"type": "arc", "innerRadius": 70, "stroke": "#fff", "strokeWidth": 2},
               "encoding": {
-                "theta": {"field": "Total", "type": "quantitative", "aggregate": "sum"},
+                "theta": {"field": "SumTotal", "type": "quantitative", "stack": true},
                 "color": {
                   "field": "Rep",
                   "type": "nominal",
                   "scale": {"scheme": "tableau20"},
-                  "legend": {"title": "Sales Rep", "orient": "right"}
+                  "legend": {"title": "Sales Rep"}
                 },
                 "tooltip": [
                   {"field": "Rep", "type": "nominal", "title": "Sales Rep"},
-                  {"field": "Total", "type": "quantitative", "aggregate": "sum", "format": "$,.2f", "title": "Total Revenue"}
+                  {"field": "SumTotal", "type": "quantitative", "format": "$,.2f", "title": "Total Revenue"}
                 ]
               }
             },
             {
-              "title": {"text": "2️⃣ Streamgraph: Total Over Time by Item", "fontSize": 15},
+              "title": "2. Streamgraph: Total Over Time by Item",
               "width": 550,
-              "height": 320,
-              "mark": {"type": "area", "interpolate": "basis", "opacity": 0.85},
+              "height": 300,
+              "mark": {"type": "area", "interpolate": "basis"},
               "encoding": {
                 "x": {
                   "field": "OrderDate",
+                  "timeUnit": "yearmonth",
                   "type": "temporal",
                   "title": "Order Date",
                   "axis": {"format": "%b %Y", "labelAngle": -45}
@@ -125,17 +131,17 @@
                   "aggregate": "sum",
                   "stack": "center",
                   "title": null,
-                  "axis": null
+                  "axis": {"title": "Total"}
                 },
                 "color": {
                   "field": "Item",
                   "type": "nominal",
-                  "scale": {"scheme": "set2"},
+                  "scale": {"scheme": "category10"},
                   "legend": {"title": "Item"}
                 },
                 "tooltip": [
                   {"field": "Item", "type": "nominal"},
-                  {"field": "OrderDate", "type": "temporal", "title": "Date", "format": "%b %d, %Y"},
+                  {"field": "OrderDate", "timeUnit": "yearmonth", "type": "temporal", "title": "Month"},
                   {"field": "Total", "type": "quantitative", "aggregate": "sum", "format": "$,.2f"}
                 ]
               }
@@ -143,134 +149,128 @@
           ]
         },
         {
-          "title": {"text": "━━━ Row 2: Trellis Histogram with Mean Overlay ━━━", "anchor": "middle", "fontSize": 14, "color": "#7f8c8d"},
+          "title": "3. Trellis Histogram of Units by Item (Red Line = Mean)",
           "columns": 5,
-          "facet": {"field": "Item", "type": "nominal", "title": "Item Category"},
+          "facet": {"field": "Item", "type": "nominal", "title": "Item"},
           "spec": {
-            "width": 170,
-            "height": 160,
+            "width": 160,
+            "height": 140,
             "layer": [
               {
-                "mark": {"type": "bar", "opacity": 0.75, "color": "#3498db", "cornerRadiusTopLeft": 3, "cornerRadiusTopRight": 3},
+                "mark": {"type": "bar", "color": "steelblue", "opacity": 0.7},
                 "encoding": {
                   "x": {"field": "Units", "type": "quantitative", "bin": {"maxbins": 8}, "title": "Units"},
-                  "y": {"aggregate": "count", "type": "quantitative", "title": "Frequency"}
+                  "y": {"aggregate": "count", "type": "quantitative", "title": "Count"}
                 }
               },
               {
-                "mark": {"type": "rule", "color": "#e74c3c", "size": 3, "strokeDash": [6, 3]},
+                "mark": {"type": "rule", "color": "red", "size": 3, "strokeDash": [6,3]},
                 "encoding": {
                   "x": {"field": "Units", "type": "quantitative", "aggregate": "mean"},
-                  "tooltip": [{"field": "Units", "aggregate": "mean", "type": "quantitative", "title": "Mean Units", "format": ".1f"}]
-                }
-              },
-              {
-                "mark": {"type": "text", "align": "left", "dx": 5, "dy": -80, "color": "#e74c3c", "fontSize": 11, "fontWeight": "bold"},
-                "encoding": {
-                  "x": {"field": "Units", "type": "quantitative", "aggregate": "mean"},
-                  "text": {"field": "Units", "aggregate": "mean", "type": "quantitative", "format": ".1f"}
+                  "tooltip": [
+                    {"field": "Units", "aggregate": "mean", "type": "quantitative", "title": "Mean Units", "format": ".1f"}
+                  ]
                 }
               }
             ]
           }
         },
         {
-          "title": {"text": "━━━ Row 3: Custom Interactive Visualizations ━━━", "anchor": "middle", "fontSize": 14, "color": "#7f8c8d"},
           "hconcat": [
             {
-              "title": {"text": "4️⃣ Linked Drill-Down: Click a Region → See Rep Breakdown", "fontSize": 14},
+              "title": "4. Click a Region Bar to Drill Down into Rep Breakdown",
               "vconcat": [
                 {
                   "width": 400,
-                  "height": 180,
+                  "height": 200,
+                  "transform": [
+                    {
+                      "aggregate": [{"op": "sum", "field": "Total", "as": "RegionTotal"}],
+                      "groupby": ["Region"]
+                    }
+                  ],
                   "params": [
                     {
                       "name": "regionClick",
-                      "select": {"type": "point", "fields": ["Region"], "on": "click"},
-                      "bind": "legend"
+                      "select": {"type": "point", "fields": ["Region"]}
                     }
                   ],
-                  "mark": {
-                    "type": "bar",
-                    "cornerRadiusTopLeft": 5,
-                    "cornerRadiusTopRight": 5,
-                    "cursor": "pointer"
-                  },
+                  "mark": {"type": "bar", "cursor": "pointer", "cornerRadiusTopLeft": 5, "cornerRadiusTopRight": 5},
                   "encoding": {
-                    "x": {"field": "Region", "type": "nominal", "title": "Region", "axis": {"labelFontSize": 13}},
-                    "y": {"field": "Total", "type": "quantitative", "aggregate": "sum", "title": "Total Revenue ($)"},
+                    "x": {"field": "Region", "type": "nominal", "title": "Region"},
+                    "y": {"field": "RegionTotal", "type": "quantitative", "title": "Total Revenue ($)"},
                     "color": {
                       "condition": {
                         "param": "regionClick",
                         "field": "Region",
                         "type": "nominal",
-                        "scale": {"domain": ["East", "Central", "West"], "range": ["#e74c3c", "#3498db", "#2ecc71"]}
+                        "scale": {"domain": ["East","Central","West"], "range": ["#e74c3c","#3498db","#2ecc71"]}
                       },
                       "value": "#bdc3c7"
                     },
                     "tooltip": [
                       {"field": "Region", "type": "nominal"},
-                      {"field": "Total", "aggregate": "sum", "type": "quantitative", "format": "$,.2f"}
+                      {"field": "RegionTotal", "type": "quantitative", "format": "$,.2f", "title": "Total Revenue"}
                     ]
                   }
                 },
                 {
                   "width": 400,
-                  "height": 200,
-                  "transform": [{"filter": {"param": "regionClick"}}],
-                  "mark": {
-                    "type": "bar",
-                    "cornerRadiusTopLeft": 4,
-                    "cornerRadiusTopRight": 4
-                  },
+                  "height": 220,
+                  "transform": [
+                    {"filter": {"param": "regionClick"}},
+                    {
+                      "aggregate": [{"op": "sum", "field": "Total", "as": "RepTotal"}],
+                      "groupby": ["Rep","Item"]
+                    }
+                  ],
+                  "mark": {"type": "bar", "cornerRadiusEnd": 4},
                   "encoding": {
                     "y": {"field": "Rep", "type": "nominal", "title": "Sales Rep", "sort": "-x"},
-                    "x": {"field": "Total", "type": "quantitative", "aggregate": "sum", "title": "Revenue ($)"},
-                    "color": {
-                      "field": "Item",
-                      "type": "nominal",
-                      "scale": {"scheme": "set2"},
-                      "legend": {"title": "Item"}
-                    },
+                    "x": {"field": "RepTotal", "type": "quantitative", "title": "Revenue ($)", "stack": "zero"},
+                    "color": {"field": "Item", "type": "nominal", "scale": {"scheme": "set2"}, "legend": {"title": "Item"}},
                     "tooltip": [
                       {"field": "Rep", "type": "nominal"},
                       {"field": "Item", "type": "nominal"},
-                      {"field": "Total", "aggregate": "sum", "type": "quantitative", "format": "$,.2f"},
-                      {"field": "Units", "aggregate": "sum", "type": "quantitative", "title": "Units Sold"}
+                      {"field": "RepTotal", "type": "quantitative", "format": "$,.2f", "title": "Revenue"}
                     ]
                   }
                 }
               ]
             },
             {
-              "title": {"text": "5️⃣ Brush Scatter → Linked Distribution Below", "fontSize": 14},
+              "title": "5. Drag to Select Time Range → See Item Revenue Below",
               "vconcat": [
                 {
-                  "width": 420,
-                  "height": 200,
+                  "width": 450,
+                  "height": 220,
                   "params": [
                     {
-                      "name": "brush",
+                      "name": "timeBrush",
                       "select": {"type": "interval", "encodings": ["x"]}
                     }
                   ],
-                  "mark": {"type": "point", "filled": true, "size": 100, "opacity": 0.8},
+                  "mark": {"type": "circle", "size": 120, "opacity": 0.8},
                   "encoding": {
-                    "x": {"field": "OrderDate", "type": "temporal", "title": "Order Date", "axis": {"format": "%b %Y", "labelAngle": -45}},
+                    "x": {
+                      "field": "OrderDate",
+                      "type": "temporal",
+                      "title": "Order Date",
+                      "axis": {"format": "%b %Y", "labelAngle": -45}
+                    },
                     "y": {"field": "Total", "type": "quantitative", "title": "Total ($)"},
                     "color": {
                       "condition": {
-                        "param": "brush",
+                        "param": "timeBrush",
                         "field": "Item",
                         "type": "nominal",
                         "scale": {"scheme": "dark2"}
                       },
                       "value": "lightgray"
                     },
-                    "shape": {"field": "Region", "type": "nominal"},
                     "size": {
-                      "condition": {"param": "brush", "value": 150},
-                      "value": 40
+                      "condition": {"param": "timeBrush", "value": 180},
+                      "value": 30
                     },
                     "tooltip": [
                       {"field": "Rep", "type": "nominal"},
@@ -283,18 +283,27 @@
                   }
                 },
                 {
-                  "width": 420,
-                  "height": 160,
-                  "transform": [{"filter": {"param": "brush"}}],
-                  "mark": {"type": "bar", "opacity": 0.8, "cornerRadiusTopLeft": 3, "cornerRadiusTopRight": 3},
+                  "width": 450,
+                  "height": 180,
+                  "transform": [
+                    {"filter": {"param": "timeBrush"}},
+                    {
+                      "aggregate": [
+                        {"op": "sum", "field": "Total", "as": "FilteredTotal"},
+                        {"op": "sum", "field": "Units", "as": "FilteredUnits"}
+                      ],
+                      "groupby": ["Item"]
+                    }
+                  ],
+                  "mark": {"type": "bar", "cornerRadiusTopLeft": 5, "cornerRadiusTopRight": 5},
                   "encoding": {
-                    "x": {"field": "Item", "type": "nominal", "title": "Item", "axis": {"labelFontSize": 12}},
-                    "y": {"field": "Total", "type": "quantitative", "aggregate": "sum", "title": "Filtered Total ($)"},
+                    "x": {"field": "Item", "type": "nominal", "title": "Item", "sort": "-y"},
+                    "y": {"field": "FilteredTotal", "type": "quantitative", "title": "Revenue in Selection ($)"},
                     "color": {"field": "Item", "type": "nominal", "scale": {"scheme": "dark2"}, "legend": null},
                     "tooltip": [
                       {"field": "Item", "type": "nominal"},
-                      {"field": "Total", "aggregate": "sum", "type": "quantitative", "format": "$,.2f", "title": "Total in Selection"},
-                      {"field": "Units", "aggregate": "sum", "type": "quantitative", "title": "Units in Selection"}
+                      {"field": "FilteredTotal", "type": "quantitative", "format": "$,.2f", "title": "Total Revenue"},
+                      {"field": "FilteredUnits", "type": "quantitative", "title": "Total Units"}
                     ]
                   }
                 }
@@ -303,19 +312,16 @@
           ]
         }
       ],
+      "resolve": {"scale": {"color": "independent"}},
       "config": {
         "title": {"fontSize": 15, "font": "Segoe UI"},
-        "axis": {"labelFontSize": 11, "titleFontSize": 13, "grid": true, "gridOpacity": 0.15},
+        "axis": {"labelFontSize": 11, "titleFontSize": 13},
         "legend": {"labelFontSize": 11, "titleFontSize": 12},
-        "view": {"stroke": null},
-        "background": "white"
+        "view": {"stroke": null}
       }
     };
 
-    vegaEmbed('#vis', spec, {
-      actions: {export: true, source: false, compiled: false, editor: true},
-      renderer: 'canvas'
-    }).catch(console.error);
+    vegaEmbed('#vis', spec, {actions: true, renderer: 'canvas'}).catch(console.error);
   </script>
 </body>
 </html>
